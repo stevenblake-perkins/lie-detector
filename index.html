@@ -180,11 +180,11 @@ $('#start').onclick=async()=>{
   if(lies.length<ids.length*2)return alert('You need at least '+ids.length*2+' lies for '+ids.length+' players.');
   $('#start').disabled=true;const pool=shuffle(lies);
   for(let i=0;i<ids.length;i++){await set(R('private/'+ids[i]+'/lies'),[pool[2*i],pool[2*i+1]]);await set(R('scores/'+ids[i]),0)}
-  await startTurn(shuffle(ids),0);
+  await startTurn([...(ids.includes(uid)?[uid]:[]),...shuffle(ids.filter(x=>x!==uid))],0);
 };
 async function startTurn(order,i){
   const p=(await get(R('private/'+order[i]))).val();
-  const pick=shuffle([{s:p.fact,t:true},{s:p.lies[0],t:false},{s:p.lies[1],t:false}])[0];
+  const pick=Math.random()<.5?{s:p.fact,t:true}:{s:p.lies[Math.random()<.5?0:1],t:false};
   await set(R('turn'),{n:i,playerUid:order[i],statement:pick.s,isTruth:pick.t});
   await set(R('reveal'),null);
   await set(R('state'),{phase:'playing',order,turn:i,endsAt:srv()+ROUND_MS,locked:false,scored:false});
