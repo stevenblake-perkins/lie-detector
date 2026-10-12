@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lie Detectors | Harry Perkins Institute of Medical Research</title>
+<title>Lie Detectors! | Harry Perkins Institute of Medical Research</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Carlito:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -20,7 +20,7 @@ h1{font-size:2.1rem;line-height:1.15;margin:4px 0 6px}h1 span{color:var(--cy)}h2
 .card{background:var(--cy10);border-radius:22px 22px 22px 4px;padding:18px;margin-bottom:16px}
 .card.w{background:#fff;border:3px solid var(--cy20)}
 label{display:block;font-weight:700;margin-top:10px}.hint{font-weight:400;color:var(--mut);font-size:.9rem}
-input,textarea{width:100%;font:inherit;color:inherit;background:#fff;border:3px solid var(--cy20);border-radius:12px;padding:12px;margin:6px 0}
+input,textarea,select{width:100%;font:inherit;color:inherit;background:#fff;border:3px solid var(--cy20);border-radius:12px;padding:12px;margin:6px 0}
 textarea{min-height:96px;resize:vertical}
 button{font:inherit;font-weight:700;min-height:50px;border:3px solid var(--cy);border-radius:14px 14px 14px 3px;padding:10px 20px;cursor:pointer;background:var(--cy);color:var(--ink)}
 button.alt{background:#fff}button.ghost{min-height:40px;padding:4px 14px;font-size:.95rem;background:#fff}
@@ -66,7 +66,7 @@ ol.board{list-style:none;margin:0;padding:0}.board li{display:flex;align-items:c
 <div id="live" class="sr" aria-live="polite"></div>
 
 <section id="home" class="hide">
-  <h1>Will I <span>lie</span> to you?</h1>
+  <h1><span>Lie</span> Detectors!</h1>
   <p class="lead" id="sub">Connecting…</p>
   <div class="seg" role="group" aria-label="Choose what to do"><button id="mJoin" aria-pressed="true">Join a game</button><button id="mHost" aria-pressed="false">Host a game</button></div>
   <div class="card" style="margin-top:14px">
@@ -82,7 +82,9 @@ ol.board{list-style:none;margin:0;padding:0}.board li{display:flex;align-items:c
   <div class="card"><p class="mut" style="margin:0">Tell your crew the room code:</p><p class="code" id="rc"></p></div>
   <div class="card w"><h2>In the room</h2><div id="plist"></div><p class="mut hide" id="waiting">Hang tight. The host will start the game shortly.</p></div>
   <div class="card hide" id="hostcard"><h2>Host controls</h2>
-    <p class="mut">Add your pre-written lies: upload a .txt file (one per line) or a .csv file (first column), or type them. You need 2 per player. Each player is secretly dealt 2 unique ones.</p>
+    <p class="mut">Add your pre-written lies: upload a .txt file (one per line) or a .csv file (first column), or type them. Each player is secretly dealt their own unique lies.</p>
+    <label for="lpp">Lies per player</label><select id="lpp"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select>
+    <p class="mut" id="odds"></p>
     <label for="file">Upload a lies file</label><input type="file" id="file" accept=".txt,.csv,text/plain,text/csv">
     <label for="lies">Lies <span class="hint">(one per line)</span></label><textarea id="lies" style="min-height:140px"></textarea>
     <p class="mut" id="li"></p><button class="wide" id="start">Start the game</button>
@@ -134,7 +136,7 @@ async function endRoom(){
 try{
   uid=(await signInAnonymously(getAuth(app))).user.uid;
   onValue(ref(db,'.info/serverTimeOffset'),s=>off=s.val()||0);
-  $('#sub').textContent='Share one truth, get dealt two lies, then sell one of the three to the room.';
+  $('#sub').textContent='Share one truth, get dealt some lies, then defend whatever the game picks.';
   $('#name').value=localStorage.wil_name||'';show('home');
   if(localStorage.wil_room){room=localStorage.wil_room;enter()}
 }catch(e){$('#sub').textContent='Could not connect. Check the Firebase config and that Anonymous sign-in is enabled.';console.error(e)}
@@ -166,9 +168,11 @@ async function enter(){
   const sub=(p,f)=>onValue(R(p),s=>{f(s.val());draw()},()=>{});
   sub('host',v=>host=v);sub('players',v=>players=v||{});sub('scores',v=>scores=v||{});sub('votes',v=>votes=v||{});sub('reveal',v=>reveal=v);
   sub('state',v=>{S=v;if(S&&S.turn!==lastTurn){lastTurn=S.turn;tu&&tu();turn=null;tu=onValue(R('turn'),s=>{turn=s.val();draw()},()=>{turn=null})}});
-  $('#lies').value=localStorage.wil_lies||'';setInterval(tick,500);
+  $('#lies').value=localStorage.wil_lies||'';$('#lpp').value=localStorage.wil_lpp||'2';setInterval(tick,500);
 }
+const LPP=()=>+$('#lpp').value||2;
 const liesList=()=>[...new Set($('#lies').value.split('\n').map(s=>s.trim()).filter(Boolean))];
+$('#lpp').onchange=()=>{localStorage.wil_lpp=$('#lpp').value;draw()};
 $('#lies').oninput=()=>{localStorage.wil_lies=$('#lies').value;draw()};
 $('#file').onchange=async e=>{
   const f=e.target.files[0];if(!f)return;const csv=/\.csv$/i.test(f.name);
@@ -178,16 +182,16 @@ $('#file').onchange=async e=>{
   $('#lies').value=L.join('\n');localStorage.wil_lies=$('#lies').value;draw();e.target.value='';
 };
 $('#start').onclick=async()=>{
-  const ids=Object.keys(players),lies=liesList();
+  const ids=Object.keys(players),lies=liesList(),L=LPP();
   if(ids.length<2)return alert('You need at least 2 players.');
-  if(lies.length<ids.length*2)return alert('You need at least '+ids.length*2+' lies for '+ids.length+' players.');
+  if(lies.length<ids.length*L)return alert('You need at least '+ids.length*L+' lies for '+ids.length+' players ('+L+' each).');
   $('#start').disabled=true;const pool=shuffle(lies);
-  for(let i=0;i<ids.length;i++){await set(R('private/'+ids[i]+'/lies'),[pool[2*i],pool[2*i+1]]);await set(R('scores/'+ids[i]),0)}
+  for(let i=0;i<ids.length;i++){await set(R('private/'+ids[i]+'/lies'),pool.slice(L*i,L*i+L));await set(R('scores/'+ids[i]),0)}
   await startTurn([...(ids.includes(uid)?[uid]:[]),...shuffle(ids.filter(x=>x!==uid))],0);
 };
 async function startTurn(order,i){
   const p=(await get(R('private/'+order[i]))).val();
-  const pick=shuffle([{s:p.fact,t:true},{s:p.lies[0],t:false},{s:p.lies[1],t:false}])[0];
+  const pick=shuffle([{s:p.fact,t:true},...p.lies.map(x=>({s:x,t:false}))])[0];
   await set(R('turn'),{n:i,playerUid:order[i],statement:pick.s,isTruth:pick.t});
   await set(R('reveal'),null);
   await set(R('state'),{phase:'playing',order,turn:i,endsAt:srv()+ROUND_MS,locked:false,scored:false});
@@ -227,7 +231,8 @@ function draw(){
     show('lobby');$('#rc').textContent=room;
     $('#plist').innerHTML=Object.keys(players).map(id=>'<span class="chip">'+av(id)+esc(players[id].name)+'</span>').join('')||'<span class="mut">Nobody yet</span>';
     $('#hostcard').classList.toggle('hide',!isHost());$('#waiting').classList.toggle('hide',isHost());
-    $('#li').textContent=liesList().length+' lies ready. You need '+Object.keys(players).length*2+' for '+Object.keys(players).length+' players.';return;
+    $('#odds').textContent='Each presenter has a '+Math.round(LPP()/(LPP()+1)*100)+'% chance of being handed a lie, and '+Math.round(100/(LPP()+1))+'% of being handed their truth.';
+    $('#li').textContent=liesList().length+' lies ready. You need '+Object.keys(players).length*LPP()+' for '+Object.keys(players).length+' players.';return;
   }
   show('game');const g=$('#game');
   const endBtn=isHost()?'<button class="alt wide" id="endr">End room for everyone</button>':'';
