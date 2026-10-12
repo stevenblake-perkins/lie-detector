@@ -1,61 +1,101 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Will I Lie To You?</title>
+<title>Will I lie to you? | Harry Perkins Institute of Medical Research</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Carlito:wght@400;700&display=swap" rel="stylesheet">
 <style>
-/* Perkins brand: Cyan #00AEEF (primary), Teal #009CA8, Fuchsia #AA0061, Peach #E99385, Clementine #F8991D.
-   Navy/Grey are corporate-comms only, so they are not used. Headings: Bree (Bree Serif stand-in). Body: Calibri (Carlito fallback). */
-:root{--cyan:#00AEEF;--cyan10:#E5F5FD;--cyan20:#CCECFB;--bg:#fff;--fg:#1d2327;--card:#E5F5FD;--mut:#56636c;--acc:#00AEEF;--tr:#009CA8;--li:#AA0061;--clem:#F8991D;--peach10:#FAF4F3;--bd:#CCECFB;--head:"Bree","Bree Serif",Georgia,serif}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:18px/1.5 Calibri,Carlito,"Segoe UI",system-ui,sans-serif}
-main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
-.logo{display:block;height:48px;margin:0 0 16px}
-h1,h2,.big,.code,.timer{font-family:var(--head);font-weight:400}
-h1{margin:0 0 4px;font-size:2rem;color:var(--cyan)}h2{font-size:1.25rem;margin:0 0 10px}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:18px 18px 18px 4px;padding:18px;margin-bottom:14px}
-input,textarea{width:100%;font:inherit;color:inherit;background:#fff;border:2px solid var(--cyan20);border-radius:10px;padding:10px;margin:4px 0 10px}
-input:focus,textarea:focus{outline:none;border-color:var(--cyan)}
-button{font:inherit;font-weight:700;border:0;border-radius:12px 12px 12px 3px;padding:12px 18px;cursor:pointer;background:var(--cyan);color:#10252f}
-button.alt{background:#fff;color:var(--fg);border:2px solid var(--cyan)}button:disabled{opacity:.4;cursor:not-allowed}
-.row{display:flex;gap:10px;flex-wrap:wrap}.row>button{flex:1}.mut{color:var(--mut)}.big{font-size:1.5rem}
-.code{font-size:2.8rem;letter-spacing:.2em;color:var(--cyan)}.timer{font-size:2.6rem;color:var(--clem)}
-[data-v]{color:#fff;font-size:1.3rem;padding:16px}
-.stmt{font-size:1.3rem;font-weight:700;padding:14px;border-left:5px solid var(--clem);background:var(--peach10);border-radius:4px 12px 12px 4px}
-.bar{height:36px;border-radius:10px;background:#fff;border:1px solid var(--bd);overflow:hidden;margin:6px 0 12px}
-.bar>div{height:100%;padding-left:10px;display:flex;align-items:center;color:#fff;font-weight:700;transition:width .4s;white-space:nowrap}
-.t>div{background:var(--tr)}.l>div{background:var(--li)}.sel{outline:4px solid var(--clem);outline-offset:2px}
-.chip{display:inline-block;background:#fff;border:2px solid var(--cyan);border-radius:99px;padding:2px 14px;margin:0 6px 6px 0;font-weight:700}
-table{width:100%;border-collapse:collapse}td{padding:7px 0;border-bottom:1px solid var(--cyan20)}td:last-child{text-align:right;font-weight:700;color:var(--li)}.hide{display:none}
-.foot{margin-top:28px;padding-top:12px;border-top:2px solid var(--cyan20);color:var(--mut);font-size:.9rem}
-</style></head><body><main>
-<img class="logo" src="logo.png" alt="Harry Perkins Institute of Medical Research" onerror="this.remove()">
-<h1>Will I lie to you?</h1><p class="mut" id="sub">Connecting…</p>
+/* Perkins palette: Cyan #00AEEF, Teal #009CA8, Fuchsia #AA0061, Peach #E99385, Clementine #F8991D (Navy/Grey are corporate-only).
+   Headings: Bree (Bree Serif stand-in). Body: Calibri (Carlito fallback). Ink colour is a near-black for readability. */
+:root{--cy:#00AEEF;--cy10:#E5F5FD;--cy20:#CCECFB;--teal:#009CA8;--fu:#AA0061;--pe:#E99385;--cl:#F8991D;--ink:#10252f;--mut:#4a5a63;--head:"Bree","Bree Serif",Georgia,serif}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:#fff;color:var(--ink);font:19px/1.5 Calibri,Carlito,"Segoe UI",system-ui,sans-serif}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:4px solid var(--cy);position:sticky;top:0;background:#fff;z-index:5}
+.logo{height:42px;display:block}.brandtxt{font-family:var(--head);color:var(--cy);font-size:1.1rem}
+#chip{display:flex;align-items:center;gap:10px}#chip b{font-family:var(--head);letter-spacing:.15em;font-size:1.2rem;background:var(--cy10);padding:2px 10px;border-radius:10px 10px 10px 2px}
+main{max-width:640px;margin:0 auto;padding:20px 16px 56px}
+h1,h2,.big,.nm,.tm{font-family:var(--head);font-weight:400}
+h1{font-size:2.1rem;line-height:1.15;margin:4px 0 6px}h1 span{color:var(--cy)}h2{font-size:1.3rem;margin:0 0 10px}
+.lead{margin:0 0 18px;color:var(--mut)}.mut{color:var(--mut)}
+.card{background:var(--cy10);border-radius:22px 22px 22px 4px;padding:18px;margin-bottom:16px}
+.card.w{background:#fff;border:3px solid var(--cy20)}
+label{display:block;font-weight:700;margin-top:10px}.hint{font-weight:400;color:var(--mut);font-size:.9rem}
+input,textarea{width:100%;font:inherit;color:inherit;background:#fff;border:3px solid var(--cy20);border-radius:12px;padding:12px;margin:6px 0}
+textarea{min-height:96px;resize:vertical}
+button{font:inherit;font-weight:700;min-height:50px;border:3px solid var(--cy);border-radius:14px 14px 14px 3px;padding:10px 20px;cursor:pointer;background:var(--cy);color:var(--ink)}
+button.alt{background:#fff}button.ghost{min-height:40px;padding:4px 14px;font-size:.95rem;background:#fff}
+button:disabled{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:4px solid var(--ink);outline-offset:3px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 4px}.seg button{background:#fff}.seg button[aria-pressed=true]{background:var(--cy);box-shadow:0 4px 0 var(--ink)}
+.wide{width:100%;margin-top:10px}
+.code{font-family:var(--head);font-size:3.4rem;letter-spacing:.2em;color:var(--cy);margin:0;line-height:1.1}
+.chip{display:inline-flex;align-items:center;gap:8px;background:#fff;border:3px solid var(--cy);border-radius:99px;padding:3px 14px 3px 4px;margin:0 8px 8px 0;font-weight:700}
+.av{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;font-family:var(--head);flex:none}
+.stage{background:var(--cy);border-radius:26px 26px 26px 4px;padding:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.who{display:flex;align-items:center;gap:12px;min-width:0}.who .av{width:56px;height:56px;font-size:1.6rem;border:3px solid var(--ink)}
+.lab{font-size:.9rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em}.nm{font-size:1.7rem;line-height:1.15;overflow-wrap:anywhere}
+.ringwrap{position:relative;width:104px;height:104px;flex:none}.ringwrap svg{width:100%;height:100%}
+.rbg{fill:none;stroke:rgba(255,255,255,.55);stroke-width:10}.rfg{fill:none;stroke:var(--ink);stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .5s linear}
+.tm{position:absolute;inset:0;display:grid;place-items:center;font-size:1.35rem}
+.stmt{font-family:var(--head);font-size:1.5rem;line-height:1.3;padding:16px;background:#fff;border-left:8px solid var(--cl);border-radius:6px 16px 16px 6px}
+.votes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.votes button{min-height:92px;font-family:var(--head);font-weight:400;font-size:1.5rem;color:#fff;border-color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.votes button span{font-family:Calibri,Carlito,sans-serif;font-size:.9rem;font-weight:700}
+#vt{background:var(--teal)}#vl{background:var(--fu)}.votes button[aria-pressed=true]{outline:5px solid var(--cl);outline-offset:3px}
+.tl{display:flex;justify-content:space-between;font-weight:700}.bar{height:30px;border-radius:10px;background:#fff;overflow:hidden;margin:4px 0 12px;border:2px solid var(--cy20)}
+.bar>div{height:100%;transition:width .4s}.bt>div{background:var(--teal)}.bl>div{background:var(--fu)}
+.reveal{border-radius:22px 22px 22px 4px;padding:18px;color:#fff;margin-bottom:16px}.rt{background:var(--teal)}.rl{background:var(--fu)}
+.reveal .big{font-size:2rem;margin:0}.reveal .stmt{color:var(--ink);margin:10px 0}
+ol.board{list-style:none;margin:0;padding:0}.board li{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:2px solid var(--cy20)}
+.board .n{flex:1;font-weight:700}.board .p{font-family:var(--head);font-size:1.3rem;color:var(--fu)}.board .r{width:1.4em;color:var(--mut);font-weight:700}
+.hide{display:none}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.foot{margin-top:32px;padding-top:12px;border-top:3px solid var(--cy20);color:var(--mut);font-size:.9rem}
+.cf{position:fixed;top:-16px;width:10px;height:14px;z-index:9;animation:fall 2.8s linear forwards}@keyframes fall{to{transform:translateY(110vh) rotate(600deg)}}
+@media (prefers-reduced-motion:reduce){.cf{display:none}*{transition:none!important}}
+@media (max-width:420px){.nm{font-size:1.4rem}.ringwrap{width:88px;height:88px}.code{font-size:2.8rem}}
+</style></head><body>
+<header>
+  <div><img class="logo" src="logo.png" alt="Harry Perkins Institute of Medical Research" onerror="this.outerHTML='<span class=brandtxt>Harry Perkins Institute</span>'"></div>
+  <div id="chip" class="hide"><span>Room <b id="rcode"></b></span><button class="ghost" id="leave">Leave</button></div>
+</header>
+<main>
+<div id="live" class="sr" aria-live="polite"></div>
 
-<div id="home" class="card hide">
-  <label>Your name<input id="name" maxlength="30"></label>
-  <label>One true fact about you<textarea id="fact" maxlength="200" placeholder="True, but surprising enough to pass as a lie"></textarea></label>
-  <label>Room code (to join a game)<input id="code" maxlength="4" style="text-transform:uppercase"></label>
-  <div class="row"><button id="join">Join room</button><button id="create" class="alt">Create new room (I'm the host)</button></div>
-  <p class="mut" id="msg"></p>
-</div>
+<section id="home" class="hide">
+  <h1>Will I <span>lie</span> to you?</h1>
+  <p class="lead" id="sub">Connecting…</p>
+  <div class="seg" role="group" aria-label="Choose what to do"><button id="mJoin" aria-pressed="true">Join a game</button><button id="mHost" aria-pressed="false">Host a game</button></div>
+  <div class="card" style="margin-top:14px">
+    <label for="name">Your name</label><input id="name" maxlength="30" autocomplete="nickname">
+    <label for="fact">One true fact about you <span class="hint">(true, but surprising enough to pass as a fib)</span></label><textarea id="fact" maxlength="200"></textarea>
+    <div id="codeWrap"><label for="code">Room code <span class="hint">(4 letters, from your host)</span></label><input id="code" maxlength="4" autocapitalize="characters" style="text-transform:uppercase;letter-spacing:.2em"></div>
+    <button class="wide" id="go">Join the game</button>
+    <p class="mut" id="msg" role="alert"></p>
+  </div>
+</section>
 
-<div id="lobby" class="hide">
-  <div class="card"><div class="mut">Room code</div><div class="code" id="rc"></div><div id="plist"></div></div>
+<section id="lobby" class="hide">
+  <div class="card"><p class="mut" style="margin:0">Tell your crew the room code:</p><p class="code" id="rc"></p></div>
+  <div class="card w"><h2>In the room</h2><div id="plist"></div><p class="mut hide" id="waiting">Hang tight. The host will start the game shortly.</p></div>
   <div class="card hide" id="hostcard"><h2>Host controls</h2>
-    <p class="mut">Upload your lies as a .txt file (one lie per line) or a .csv file (lies in the first column), or type them below. You need at least 2 per player; each player is secretly dealt 2 unique ones.</p>
-    <input type="file" id="file" accept=".txt,.csv,text/plain,text/csv">
-    <textarea id="lies" style="min-height:140px"></textarea><p class="mut" id="li"></p><button id="start">Start game</button></div>
-</div>
-<div id="game" class="hide"></div>
+    <p class="mut">Add your pre-written lies: upload a .txt file (one per line) or a .csv file (first column), or type them. You need 2 per player. Each player is secretly dealt 2 unique ones.</p>
+    <label for="file">Upload a lies file</label><input type="file" id="file" accept=".txt,.csv,text/plain,text/csv">
+    <label for="lies">Lies <span class="hint">(one per line)</span></label><textarea id="lies" style="min-height:140px"></textarea>
+    <p class="mut" id="li"></p><button class="wide" id="start">Start the game</button>
+  </div>
+</section>
+
+<section id="game" class="hide"></section>
+
+<section id="closed" class="card hide"><h2>That's a wrap!</h2><p>The host has ended this room. Thanks for playing.</p><button class="wide" id="again">Back to start</button></section>
 <p class="foot">A game from the Harry Perkins Institute of Medical Research.</p>
+</main>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,signInAnonymously} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {getDatabase,ref,get,set,update,onValue} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// ===== PASTE YOUR FIREBASE CONFIG HERE (Step 3 of the guide) =====
 const firebaseConfig = {
   apiKey: "AIzaSyDmAshaS0g7DecMZbUMFBPXM86XkdarlLs",
   authDomain: "will-i-lie.firebaseapp.com",
@@ -66,80 +106,79 @@ const firebaseConfig = {
   appId: "1:29850721468:web:135aeade6f4642dcb844b9",
   measurementId: "G-XTVNJHMQZF"
 };
-// =================================================================
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
-const ROUND_MS=5*60*1000;
+const ROUND_MS=5*60*1000,C=276.5;
+const AV=[['#00AEEF','#10252f'],['#009CA8','#fff'],['#AA0061','#fff'],['#E99385','#10252f'],['#F8991D','#10252f']];
 const app=initializeApp(firebaseConfig),db=getDatabase(app);
-let uid,room,host,S,players={},scores={},votes={},turn,reveal,off=0,tu,lastTurn=-1,lastLocked,busy=false;
+let uid,room,host,S,players={},scores={},votes={},turn,reveal,off=0,tu,lastTurn=-1,lastLocked,lastBurst=-1,busy=false,mode='join';
 const R=p=>ref(db,'rooms/'+room+(p?'/'+p:''));
-const srv=()=>Date.now()+off;
-const isHost=()=>uid&&uid===host;
+const srv=()=>Date.now()+off,isHost=()=>uid&&uid===host;
 const locked=()=>S&&S.phase==='playing'&&(S.locked||srv()>=S.endsAt);
 const fmt=ms=>{const s=Math.ceil(Math.max(0,ms)/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
-function tally(){
-  const pres=S.order[S.turn];let t=0,l=0;
-  for(const [id,v] of Object.entries(votes)){if(v.turn!==S.turn||id===pres||!players[id])continue;v.vote==='truth'?t++:l++}
-  return{t,l};
+const av=id=>{const i=Math.max(0,Object.keys(players).indexOf(id)),[b,f]=AV[i%5];return'<span class="av" style="background:'+b+';color:'+f+'" aria-hidden="true">'+esc((players[id]?.name||'?').trim().charAt(0).toUpperCase())+'</span>'};
+const show=n=>['home','lobby','game','closed'].forEach(x=>$('#'+x).classList.toggle('hide',x!==n));
+function tally(){const pres=S.order[S.turn];let t=0,l=0;for(const [id,v] of Object.entries(votes)){if(v.turn!==S.turn||id===pres||!players[id])continue;v.vote==='truth'?t++:l++}return{t,l}}
+function leaveLocal(){localStorage.removeItem('wil_room');location.reload()}
+async function endRoom(){
+  if(!confirm('End this room for everyone? Players will be sent back to the start.'))return;
+  try{await update(R('state'),{phase:'closed'})}catch(e){console.error(e)}
+  leaveLocal();
 }
 
 try{
-  const cred=await signInAnonymously(getAuth(app));uid=cred.user.uid;
+  uid=(await signInAnonymously(getAuth(app))).user.uid;
   onValue(ref(db,'.info/serverTimeOffset'),s=>off=s.val()||0);
   $('#sub').textContent='Share one truth, get dealt two fibs, then sell one of the three to the room.';
-  $('#home').classList.remove('hide');
-  $('#name').value=localStorage.wil_name||'';
-  const saved=localStorage.wil_room;if(saved){room=saved;enter()}
+  $('#name').value=localStorage.wil_name||'';show('home');
+  if(localStorage.wil_room){room=localStorage.wil_room;enter()}
 }catch(e){$('#sub').textContent='Could not connect. Check the Firebase config and that Anonymous sign-in is enabled.';console.error(e)}
 
-async function begin(mode){
-  const name=$('#name').value.trim(),fact=$('#fact').value.trim();
-  if(!name||!fact)return $('#msg').textContent='Please enter your name and a fact.';
+function setMode(m){mode=m;$('#mJoin').setAttribute('aria-pressed',m==='join');$('#mHost').setAttribute('aria-pressed',m==='host');
+  $('#codeWrap').classList.toggle('hide',m==='host');$('#go').textContent=m==='join'?'Join the game':'Create my room';$('#msg').textContent=''}
+$('#mJoin').onclick=()=>setMode('join');$('#mHost').onclick=()=>setMode('host');
+$('#go').onclick=async()=>{
+  const name=$('#name').value.trim(),fact=$('#fact').value.trim(),msg=$('#msg');
+  if(!name||!fact)return msg.textContent='Pop in your name and a true fact first.';
   try{
-    if(mode==='create'){
-      for(let i=0;i<5;i++){
-        room=Array.from({length:4},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.floor(Math.random()*24)]).join('');
-        if(!(await get(ref(db,'rooms/'+room+'/host'))).exists())break;
-      }
+    if(mode==='host'){
+      for(let i=0;i<5;i++){room=Array.from({length:4},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.floor(Math.random()*24)]).join('');if(!(await get(ref(db,'rooms/'+room+'/host'))).exists())break}
       await set(R('host'),uid);await set(R('state'),{phase:'lobby'});
     }else{
       room=$('#code').value.trim().toUpperCase();
-      if(!(await get(R('host'))).exists())return $('#msg').textContent='Room not found.';
-      if((await get(R('state/phase'))).val()!=='lobby')return $('#msg').textContent='That game has already started.';
+      if(room.length!==4)return msg.textContent='Room codes have 4 letters.';
+      if(!(await get(R('host'))).exists())return msg.textContent='We can\'t find that room. Check the code?';
+      if((await get(R('state/phase'))).val()!=='lobby')return msg.textContent='That game has already started.';
     }
     await set(R('private/'+uid+'/fact'),fact);await set(R('players/'+uid),{name});
     localStorage.wil_name=name;localStorage.wil_room=room;enter();
-  }catch(e){console.error(e);$('#msg').textContent='Something went wrong. Check the database rules.'}
-}
-$('#create').onclick=()=>begin('create');$('#join').onclick=()=>begin('join');
+  }catch(e){console.error(e);msg.textContent='Something went wrong. Please try again.'}
+};
+$('#leave').onclick=()=>isHost()?endRoom():leaveLocal();$('#again').onclick=leaveLocal;
 
-function enter(){
+async function enter(){
+  if(!(await get(R('host'))).exists()){localStorage.removeItem('wil_room');return location.reload()}
   const sub=(p,f)=>onValue(R(p),s=>{f(s.val());draw()},()=>{});
   sub('host',v=>host=v);sub('players',v=>players=v||{});sub('scores',v=>scores=v||{});sub('votes',v=>votes=v||{});sub('reveal',v=>reveal=v);
   sub('state',v=>{S=v;if(S&&S.turn!==lastTurn){lastTurn=S.turn;tu&&tu();turn=null;tu=onValue(R('turn'),s=>{turn=s.val();draw()},()=>{turn=null})}});
-  $('#lies').value=localStorage.wil_lies||'';
-  setInterval(tick,500);
+  $('#lies').value=localStorage.wil_lies||'';setInterval(tick,500);
 }
-$('#file').onchange=async e=>{
-  const f=e.target.files[0];if(!f)return;
-  const csv=/\.csv$/i.test(f.name);
-  let lines=(await f.text()).replace(/^\uFEFF/,'').split(/\r?\n/);
-  if(csv)lines=lines.map(l=>{l=l.trim();if(l[0]==='"'){const m=l.match(/^"((?:[^"]|"")*)"/);return m?m[1].replace(/""/g,'"'):l}return l.split(',')[0]});
-  lines=lines.map(x=>x.trim()).filter(Boolean);
-  if(csv&&/^lies?$/i.test(lines[0]))lines.shift();
-  $('#lies').value=lines.join('\n');localStorage.wil_lies=$('#lies').value;draw();e.target.value='';
-};
-$('#lies').oninput=()=>{localStorage.wil_lies=$('#lies').value;draw()};
 const liesList=()=>[...new Set($('#lies').value.split('\n').map(s=>s.trim()).filter(Boolean))];
-
+$('#lies').oninput=()=>{localStorage.wil_lies=$('#lies').value;draw()};
+$('#file').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;const csv=/\.csv$/i.test(f.name);
+  let L=(await f.text()).replace(/^\uFEFF/,'').split(/\r?\n/);
+  if(csv)L=L.map(l=>{l=l.trim();if(l[0]==='"'){const m=l.match(/^"((?:[^"]|"")*)"/);return m?m[1].replace(/""/g,'"'):l}return l.split(',')[0]});
+  L=L.map(x=>x.trim()).filter(Boolean);if(csv&&/^lies?$/i.test(L[0]))L.shift();
+  $('#lies').value=L.join('\n');localStorage.wil_lies=$('#lies').value;draw();e.target.value='';
+};
 $('#start').onclick=async()=>{
   const ids=Object.keys(players),lies=liesList();
-  if(ids.length<2)return alert('Need at least 2 players.');
-  if(lies.length<ids.length*2)return alert('Need at least '+ids.length*2+' lies.');
-  $('#start').disabled=true;
-  const pool=shuffle(lies);
+  if(ids.length<2)return alert('You need at least 2 players.');
+  if(lies.length<ids.length*2)return alert('You need at least '+ids.length*2+' lies for '+ids.length+' players.');
+  $('#start').disabled=true;const pool=shuffle(lies);
   for(let i=0;i<ids.length;i++){await set(R('private/'+ids[i]+'/lies'),[pool[2*i],pool[2*i+1]]);await set(R('scores/'+ids[i]),0)}
   await startTurn(shuffle(ids),0);
 };
@@ -153,9 +192,7 @@ async function startTurn(order,i){
 async function finish(){
   if(busy)return;busy=true;
   try{
-    const {t,l}=tally(),pid=S.order[S.turn];
-    const tn=turn&&turn.n===S.turn?turn:(await get(R('turn'))).val();
-    const wrong=tn.isTruth?l:t;
+    const {t,l}=tally(),pid=S.order[S.turn],tn=turn&&turn.n===S.turn?turn:(await get(R('turn'))).val(),wrong=tn.isTruth?l:t;
     await set(R('scores/'+pid),(scores[pid]||0)+wrong);
     await set(R('reveal'),{n:S.turn,statement:tn.statement,isTruth:tn.isTruth,wrong});
     await update(R('state'),{locked:true,scored:true});
@@ -163,48 +200,52 @@ async function finish(){
 }
 function tick(){
   if(!S||S.phase!=='playing')return;
-  const lk=locked(),el=$('#timer');
-  if(el)el.textContent=lk?'Voting locked':fmt(S.endsAt-srv());
-  if(lk!==lastLocked){lastLocked=lk;draw()}
+  const lk=locked(),el=$('#timer'),rg=$('#ring');
+  if(el)el.textContent=lk?'Locked':fmt(S.endsAt-srv());
+  if(rg)rg.setAttribute('stroke-dashoffset',C*(1-(lk?0:Math.max(0,S.endsAt-srv())/ROUND_MS)));
+  if(lk!==lastLocked){lastLocked=lk;draw();if(lk)$('#live').textContent='Voting is locked.'}
   if(isHost()&&lk&&!S.scored)finish();
 }
 const cast=v=>set(R('votes/'+uid),{turn:S.turn,vote:v}).catch(console.error);
-
+function burst(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  for(let i=0;i<40;i++){const e=document.createElement('i');e.className='cf';e.style.left=Math.random()*100+'vw';e.style.background=AV[i%5][0];e.style.animationDelay=Math.random()*.7+'s';document.body.appendChild(e);setTimeout(()=>e.remove(),3800)}
+}
 function board(){
-  const rows=Object.keys(players).sort((a,b)=>(scores[b]||0)-(scores[a]||0));
-  return'<div class="card"><h2>Scoreboard</h2><table>'+rows.map(id=>'<tr><td>'+esc(players[id].name)+'</td><td>'+(scores[id]||0)+'</td></tr>').join('')+'</table></div>';
+  const ids=Object.keys(players).sort((a,b)=>(scores[b]||0)-(scores[a]||0));
+  return'<div class="card w"><h2>Scoreboard</h2><ol class="board">'+ids.map((id,i)=>'<li><span class="r">'+(i+1)+'</span>'+av(id)+'<span class="n">'+esc(players[id].name)+(id===uid?' (you)':'')+'</span><span class="p">'+(scores[id]||0)+'</span></li>').join('')+'</ol></div>';
 }
 function draw(){
   if(!room||!S)return;
-  $('#home').classList.add('hide');
-  const inGame=S.phase!=='lobby';
-  $('#lobby').classList.toggle('hide',inGame);$('#game').classList.toggle('hide',!inGame);
-  if(!inGame){
-    $('#rc').textContent=room;
-    $('#plist').innerHTML=Object.values(players).map(p=>'<span class="chip">'+esc(p.name)+'</span>').join('')||'<span class="mut">Nobody yet</span>';
-    $('#hostcard').classList.toggle('hide',!isHost());
-    $('#li').textContent=liesList().length+' lies entered · need '+Object.keys(players).length*2;
-    return;
+  if(S.phase==='closed'){localStorage.removeItem('wil_room');$('#chip').classList.add('hide');return show('closed')}
+  $('#chip').classList.remove('hide');$('#rcode').textContent=room;$('#leave').textContent=isHost()?'End room':'Leave';
+  if(S.phase==='lobby'){
+    show('lobby');$('#rc').textContent=room;
+    $('#plist').innerHTML=Object.keys(players).map(id=>'<span class="chip">'+av(id)+esc(players[id].name)+'</span>').join('')||'<span class="mut">Nobody yet</span>';
+    $('#hostcard').classList.toggle('hide',!isHost());$('#waiting').classList.toggle('hide',isHost());
+    $('#li').textContent=liesList().length+' lies ready. You need '+Object.keys(players).length*2+' for '+Object.keys(players).length+' players.';return;
   }
-  const g=$('#game');
+  show('game');const g=$('#game');
+  const endBtn=isHost()?'<button class="alt wide" id="endr">End room for everyone</button>':'';
   if(S.phase==='ended'){
     const top=Object.keys(players).sort((a,b)=>(scores[b]||0)-(scores[a]||0))[0];
-    g.innerHTML='<div class="card big">🏆 '+esc(players[top]?.name)+' wins with '+(scores[top]||0)+' point(s)</div>'+board();return;
+    g.innerHTML='<div class="stage"><div class="who">'+av(top)+'<div><div class="lab">Champion fibber</div><div class="nm">'+esc(players[top]?.name)+'</div></div></div><div class="big">'+(scores[top]||0)+' pts</div></div>'+board()+'<button class="wide" id="again2">Back to start</button>'+endBtn;
+    $('#again2').onclick=leaveLocal;if($('#endr'))$('#endr').onclick=endRoom;return;
   }
-  const pid=S.order[S.turn],lk=locked(),{t,l}=tally(),tot=t+l,amPres=pid===uid,mine=!!players[uid];
-  const my=votes[uid]&&votes[uid].turn===S.turn?votes[uid].vote:null;
-  $('#sub').textContent='Round '+(S.turn+1)+' of '+S.order.length+' · Room '+room;
-  let h='<div class="card"><div class="mut">Defending:</div><div class="big">'+esc(players[pid]?.name)+'</div><div class="timer" id="timer">'+(lk?'Voting locked':fmt(S.endsAt-srv()))+'</div></div>';
-  if(amPres&&turn&&turn.n===S.turn)h+='<div class="card"><h2>Your statement (only you can see it)</h2><div class="stmt">'+esc(turn.statement)+'</div><p class="mut">Read it out and convince the group!</p></div>';
-  else if(!lk&&mine&&!amPres)h+='<div class="card"><h2>Truth or lie?</h2><div class="row"><button style="background:var(--tr)" class="'+(my==='truth'?'sel':'')+'" data-v="truth">Truth</button><button style="background:var(--li)" class="'+(my==='lie'?'sel':'')+'" data-v="lie">Lie</button></div><p class="mut">Change your vote any time before the timer ends.</p></div>';
-  h+='<div class="card"><h2>Live votes ('+tot+')</h2><div class="bar t"><div style="width:'+(tot?t/tot*100:0)+'%">'+(t?'Truth '+t:'')+'</div></div><div class="bar l"><div style="width:'+(tot?l/tot*100:0)+'%">'+(l?'Lie '+l:'')+'</div></div></div>';
-  if(lk&&reveal&&reveal.n===S.turn)h+='<div class="card"><h2>Reveal</h2><div class="stmt">'+esc(reveal.statement)+'</div><p class="big" style="color:var(--'+(reveal.isTruth?'tr':'li')+')">It was a '+(reveal.isTruth?'TRUTH':'LIE')+'. '+(reveal.wrong?reveal.wrong+' fooled → '+reveal.wrong+' point'+(reveal.wrong>1?'s':'')+' for '+esc(players[pid]?.name)+'!':'Nobody fell for it!')+'</p></div>';
-  h+=board();
-  if(isHost())h+='<div class="card"><h2>Host controls</h2>'+(lk?'<button id="nx" '+(S.scored?'':'disabled')+'>'+(S.turn+1>=S.order.length?'Finish game':'Next presenter')+'</button>':'<button class="alt" id="lk">Lock votes now</button>')+'</div>';
+  const pid=S.order[S.turn],lk=locked(),{t,l}=tally(),tot=t+l,amPres=pid===uid,mine=!!players[uid],pn=esc(players[pid]?.name);
+  const my=votes[uid]&&votes[uid].turn===S.turn?votes[uid].vote:null,rv=lk&&reveal&&reveal.n===S.turn;
+  let h='<div class="stage"><div class="who">'+av(pid)+'<div><div class="lab">Round '+(S.turn+1)+' of '+S.order.length+' · now defending</div><div class="nm">'+pn+(amPres?' (you!)':'')+'</div></div></div>'
+    +'<div class="ringwrap" role="timer"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="rbg" cx="50" cy="50" r="44"/><circle id="ring" class="rfg" cx="50" cy="50" r="44" transform="rotate(-90 50 50)" stroke-dasharray="'+C+'" stroke-dashoffset="'+C*(1-(lk?0:Math.max(0,S.endsAt-srv())/ROUND_MS))+'"/></svg><div class="tm" id="timer">'+(lk?'Locked':fmt(S.endsAt-srv()))+'</div></div></div>';
+  if(rv)h+='<div class="reveal '+(reveal.isTruth?'rt':'rl')+'"><p class="big">'+(reveal.isTruth?'✓ It was the truth!':'✕ It was a lie!')+'</p><div class="stmt">'+esc(reveal.statement)+'</div><p style="margin:0;font-weight:700">'+(reveal.wrong?reveal.wrong+(reveal.wrong>1?' people fell':' person fell')+' for it, so '+pn+' bags '+reveal.wrong+' point'+(reveal.wrong>1?'s':'')+'!':'Nobody fell for it. Sharp eyes!')+'</p></div>';
+  else if(amPres&&turn&&turn.n===S.turn)h+='<div class="card w"><h2>Your statement</h2><p class="mut" style="margin-top:-6px">Only you can see this. Read it out and keep a straight face.</p><div class="stmt">'+esc(turn.statement)+'</div></div>';
+  else if(!lk&&mine&&!amPres)h+='<div class="card w"><h2>Truth or lie?</h2><div class="votes"><button id="vt" data-v="truth" aria-pressed="'+(my==='truth')+'">✓ Truth<span>'+(my==='truth'?'Your pick':'Tap to vote')+'</span></button><button id="vl" data-v="lie" aria-pressed="'+(my==='lie')+'">✕ Lie<span>'+(my==='lie'?'Your pick':'Tap to vote')+'</span></button></div><p class="mut" style="margin:10px 0 0">Change your mind any time before the timer runs out.</p></div>';
+  h+='<div class="card"><h2>Live votes ('+tot+')</h2><div class="tl"><span>✓ Truth</span><span>'+t+'</span></div><div class="bar bt"><div style="width:'+(tot?t/tot*100:0)+'%"></div></div><div class="tl"><span>✕ Lie</span><span>'+l+'</span></div><div class="bar bl"><div style="width:'+(tot?l/tot*100:0)+'%"></div></div></div>'+board();
+  if(isHost())h+='<div class="card w"><h2>Host controls</h2>'+(lk?'<button class="wide" id="nx" '+(S.scored?'':'disabled')+'>'+(S.turn+1>=S.order.length?'Finish the game':'Next presenter')+'</button>':'<button class="alt wide" id="lk">Lock votes now</button>')+'</div>'+endBtn;
   g.innerHTML=h;
   g.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>cast(b.dataset.v));
-  const nx=$('#nx'),lkb=$('#lk');
+  const nx=$('#nx'),lb=$('#lk'),er=$('#endr');
   if(nx)nx.onclick=()=>S.turn+1>=S.order.length?update(R('state'),{phase:'ended'}):startTurn(S.order,S.turn+1);
-  if(lkb)lkb.onclick=()=>update(R('state'),{locked:true});
+  if(lb)lb.onclick=()=>update(R('state'),{locked:true});if(er)er.onclick=endRoom;
+  if(rv&&lastBurst!==S.turn){lastBurst=S.turn;$('#live').textContent=(reveal.isTruth?'It was the truth. ':'It was a lie. ')+(reveal.wrong||0)+' fooled.';if(reveal.wrong)burst()}
 }
-</script></main></body></html>
+</script></body></html>
