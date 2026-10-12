@@ -71,7 +71,7 @@ ol.board{list-style:none;margin:0;padding:0}.board li{display:flex;align-items:c
   <div class="seg" role="group" aria-label="Choose what to do"><button id="mJoin" aria-pressed="true">Join a game</button><button id="mHost" aria-pressed="false">Host a game</button></div>
   <div class="card" style="margin-top:14px">
     <label for="name">Your name</label><input id="name" maxlength="30" autocomplete="nickname">
-    <label for="fact">One true fact about you <span class="hint">(true, but surprising enough to pass as a fib)</span></label><textarea id="fact" maxlength="200"></textarea>
+    <label for="fact">One true fact about you <span class="hint">(true, but surprising enough to pass as a lie)</span></label><textarea id="fact" maxlength="200"></textarea>
     <div id="codeWrap"><label for="code">Room code <span class="hint">(4 letters, from your host)</span></label><input id="code" maxlength="4" autocapitalize="characters" style="text-transform:uppercase;letter-spacing:.2em"></div>
     <button class="wide" id="go">Join the game</button>
     <p class="mut" id="msg" role="alert"></p>
@@ -134,7 +134,7 @@ async function endRoom(){
 try{
   uid=(await signInAnonymously(getAuth(app))).user.uid;
   onValue(ref(db,'.info/serverTimeOffset'),s=>off=s.val()||0);
-  $('#sub').textContent='Share one truth, get dealt two fibs, then sell one of the three to the room.';
+  $('#sub').textContent='Share one truth, get dealt two lies, then sell one of the three to the room.';
   $('#name').value=localStorage.wil_name||'';show('home');
   if(localStorage.wil_room){room=localStorage.wil_room;enter()}
 }catch(e){$('#sub').textContent='Could not connect. Check the Firebase config and that Anonymous sign-in is enabled.';console.error(e)}
@@ -233,7 +233,7 @@ function draw(){
   const endBtn=isHost()?'<button class="alt wide" id="endr">End room for everyone</button>':'';
   if(S.phase==='ended'){
     const top=Object.keys(players).sort((a,b)=>(scores[b]||0)-(scores[a]||0))[0];
-    g.innerHTML='<div class="stage"><div class="who">'+av(top)+'<div><div class="lab">Champion fibber</div><div class="nm">'+esc(players[top]?.name)+'</div></div></div><div class="big">'+(scores[top]||0)+' pts</div></div>'+board()+'<button class="wide" id="again2">Back to start</button>'+endBtn;
+    g.innerHTML='<div class="stage"><div class="who">'+av(top)+'<div><div class="lab">Champion liar</div><div class="nm">'+esc(players[top]?.name)+'</div></div></div><div class="big">'+(scores[top]||0)+' pts</div></div>'+board()+'<button class="wide" id="again2">Back to start</button>'+endBtn;
     $('#again2').onclick=leaveLocal;if($('#endr'))$('#endr').onclick=endRoom;return;
   }
   const pid=S.order[S.turn],lk=locked(),{t,l}=tally(),tot=t+l,amPres=pid===uid,mine=!!players[uid],pn=esc(players[pid]?.name);
