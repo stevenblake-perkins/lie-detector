@@ -1,4 +1,50 @@
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Will I Lie To You?</title>
+<style>
+:root{--bg:#faf7f2;--fg:#1d1b19;--card:#fff;--mut:#6b655e;--acc:#c2410c;--tr:#15803d;--li:#b91c1c;--bd:#e5ded3}
+@media (prefers-color-scheme:dark){:root{--bg:#17150f;--fg:#f3eee6;--card:#221f18;--mut:#a39b8e;--acc:#fb923c;--tr:#4ade80;--li:#f87171;--bd:#38332a}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}h1{margin:0 0 4px}h2{font-size:1.1rem;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:14px}
+input,textarea{width:100%;font:inherit;color:inherit;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px;margin:4px 0 10px}
+button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:10px 16px;cursor:pointer;background:var(--acc);color:#fff}
+button.alt{background:transparent;color:var(--fg);border:1px solid var(--bd)}button:disabled{opacity:.4}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>button{flex:1}.mut{color:var(--mut)}.big{font-size:1.4rem;font-weight:700}
+.code{font-size:2.6rem;font-weight:800;letter-spacing:.2em}.timer{font-size:2.4rem;font-weight:700}
+.stmt{font-size:1.3rem;font-weight:600;padding:14px;border-left:4px solid var(--acc);background:var(--bg);border-radius:8px}
+.bar{height:34px;border-radius:8px;background:var(--bg);border:1px solid var(--bd);overflow:hidden;margin:6px 0 12px}
+.bar>div{height:100%;padding-left:10px;display:flex;align-items:center;color:#fff;font-weight:700;transition:width .4s;white-space:nowrap}
+.t>div{background:var(--tr)}.l>div{background:var(--li)}.sel{outline:3px solid var(--fg)}
+.chip{display:inline-block;background:var(--bg);border:1px solid var(--bd);border-radius:99px;padding:3px 12px;margin:0 6px 6px 0}
+table{width:100%;border-collapse:collapse}td{padding:6px 0;border-bottom:1px solid var(--bd)}td:last-child{text-align:right;font-weight:700}.hide{display:none}
+</style></head><body><main>
+<h1>🎭 Will I Lie To You?</h1><p class="mut" id="sub">Connecting…</p>
+
+<div id="home" class="card hide">
+  <label>Your name<input id="name" maxlength="30"></label>
+  <label>One true fact about you<textarea id="fact" maxlength="200" placeholder="True, but surprising enough to pass as a lie"></textarea></label>
+  <label>Room code (to join a game)<input id="code" maxlength="4" style="text-transform:uppercase"></label>
+  <div class="row"><button id="join">Join room</button><button id="create" class="alt">Create new room (I'm the host)</button></div>
+  <p class="mut" id="msg"></p>
+</div>
+
+<div id="lobby" class="hide">
+  <div class="card"><div class="mut">Room code</div><div class="code" id="rc"></div><div id="plist"></div></div>
+  <div class="card hide" id="hostcard"><h2>Host controls</h2>
+    <p class="mut">Your pre-written lies, one per line (at least 2 per player). Each player is secretly dealt 2 unique ones.</p>
+    <textarea id="lies" style="min-height:140px"></textarea><p class="mut" id="li"></p><button id="start">Start game</button></div>
+</div>
+<div id="game" class="hide"></div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,signInAnonymously} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getDatabase,ref,get,set,update,onValue} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+// ===== PASTE YOUR FIREBASE CONFIG HERE (Step 3 of the guide) =====
+
 const firebaseConfig = {
   apiKey: "AIzaSyDmAshaS0g7DecMZbUMFBPXM86XkdarlLs",
   authDomain: "will-i-lie.firebaseapp.com",
@@ -9,3 +55,136 @@ const firebaseConfig = {
   appId: "1:29850721468:web:135aeade6f4642dcb844b9",
   measurementId: "G-XTVNJHMQZF"
 };
+// =================================================================
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const ROUND_MS=5*60*1000;
+const app=initializeApp(firebaseConfig),db=getDatabase(app);
+let uid,room,host,S,players={},scores={},votes={},turn,reveal,off=0,tu,lastTurn=-1,lastLocked,busy=false;
+const R=p=>ref(db,'rooms/'+room+(p?'/'+p:''));
+const srv=()=>Date.now()+off;
+const isHost=()=>uid&&uid===host;
+const locked=()=>S&&S.phase==='playing'&&(S.locked||srv()>=S.endsAt);
+const fmt=ms=>{const s=Math.ceil(Math.max(0,ms)/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+function tally(){
+  const pres=S.order[S.turn];let t=0,l=0;
+  for(const [id,v] of Object.entries(votes)){if(v.turn!==S.turn||id===pres||!players[id])continue;v.vote==='truth'?t++:l++}
+  return{t,l};
+}
+
+try{
+  const cred=await signInAnonymously(getAuth(app));uid=cred.user.uid;
+  onValue(ref(db,'.info/serverTimeOffset'),s=>off=s.val()||0);
+  $('#sub').textContent='Write a truth, get dealt two lies, and defend one of the three.';
+  $('#home').classList.remove('hide');
+  $('#name').value=localStorage.wil_name||'';
+  const saved=localStorage.wil_room;if(saved){room=saved;enter()}
+}catch(e){$('#sub').textContent='Could not connect. Check the Firebase config and that Anonymous sign-in is enabled.';console.error(e)}
+
+async function begin(mode){
+  const name=$('#name').value.trim(),fact=$('#fact').value.trim();
+  if(!name||!fact)return $('#msg').textContent='Please enter your name and a fact.';
+  try{
+    if(mode==='create'){
+      for(let i=0;i<5;i++){
+        room=Array.from({length:4},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.floor(Math.random()*24)]).join('');
+        if(!(await get(ref(db,'rooms/'+room+'/host'))).exists())break;
+      }
+      await set(R('host'),uid);await set(R('state'),{phase:'lobby'});
+    }else{
+      room=$('#code').value.trim().toUpperCase();
+      if(!(await get(R('host'))).exists())return $('#msg').textContent='Room not found.';
+      if((await get(R('state/phase'))).val()!=='lobby')return $('#msg').textContent='That game has already started.';
+    }
+    await set(R('private/'+uid+'/fact'),fact);await set(R('players/'+uid),{name});
+    localStorage.wil_name=name;localStorage.wil_room=room;enter();
+  }catch(e){console.error(e);$('#msg').textContent='Something went wrong. Check the database rules.'}
+}
+$('#create').onclick=()=>begin('create');$('#join').onclick=()=>begin('join');
+
+function enter(){
+  const sub=(p,f)=>onValue(R(p),s=>{f(s.val());draw()},()=>{});
+  sub('host',v=>host=v);sub('players',v=>players=v||{});sub('scores',v=>scores=v||{});sub('votes',v=>votes=v||{});sub('reveal',v=>reveal=v);
+  sub('state',v=>{S=v;if(S&&S.turn!==lastTurn){lastTurn=S.turn;tu&&tu();turn=null;tu=onValue(R('turn'),s=>{turn=s.val();draw()},()=>{turn=null})}});
+  $('#lies').value=localStorage.wil_lies||'';
+  setInterval(tick,500);
+}
+$('#lies').oninput=()=>{localStorage.wil_lies=$('#lies').value;draw()};
+const liesList=()=>[...new Set($('#lies').value.split('\n').map(s=>s.trim()).filter(Boolean))];
+
+$('#start').onclick=async()=>{
+  const ids=Object.keys(players),lies=liesList();
+  if(ids.length<2)return alert('Need at least 2 players.');
+  if(lies.length<ids.length*2)return alert('Need at least '+ids.length*2+' lies.');
+  $('#start').disabled=true;
+  const pool=shuffle(lies);
+  for(let i=0;i<ids.length;i++){await set(R('private/'+ids[i]+'/lies'),[pool[2*i],pool[2*i+1]]);await set(R('scores/'+ids[i]),0)}
+  await startTurn(shuffle(ids),0);
+};
+async function startTurn(order,i){
+  const p=(await get(R('private/'+order[i]))).val();
+  const pick=shuffle([{s:p.fact,t:true},{s:p.lies[0],t:false},{s:p.lies[1],t:false}])[0];
+  await set(R('turn'),{n:i,playerUid:order[i],statement:pick.s,isTruth:pick.t});
+  await set(R('reveal'),null);
+  await set(R('state'),{phase:'playing',order,turn:i,endsAt:srv()+ROUND_MS,locked:false,scored:false});
+}
+async function finish(){
+  if(busy)return;busy=true;
+  try{
+    const {t,l}=tally(),pid=S.order[S.turn];
+    const tn=turn&&turn.n===S.turn?turn:(await get(R('turn'))).val();
+    const wrong=tn.isTruth?l:t;
+    await set(R('scores/'+pid),(scores[pid]||0)+wrong);
+    await set(R('reveal'),{n:S.turn,statement:tn.statement,isTruth:tn.isTruth,wrong});
+    await update(R('state'),{locked:true,scored:true});
+  }catch(e){console.error(e)}busy=false;
+}
+function tick(){
+  if(!S||S.phase!=='playing')return;
+  const lk=locked(),el=$('#timer');
+  if(el)el.textContent=lk?'Voting locked':fmt(S.endsAt-srv());
+  if(lk!==lastLocked){lastLocked=lk;draw()}
+  if(isHost()&&lk&&!S.scored)finish();
+}
+const cast=v=>set(R('votes/'+uid),{turn:S.turn,vote:v}).catch(console.error);
+
+function board(){
+  const rows=Object.keys(players).sort((a,b)=>(scores[b]||0)-(scores[a]||0));
+  return'<div class="card"><h2>Scoreboard</h2><table>'+rows.map(id=>'<tr><td>'+esc(players[id].name)+'</td><td>'+(scores[id]||0)+'</td></tr>').join('')+'</table></div>';
+}
+function draw(){
+  if(!room||!S)return;
+  $('#home').classList.add('hide');
+  const inGame=S.phase!=='lobby';
+  $('#lobby').classList.toggle('hide',inGame);$('#game').classList.toggle('hide',!inGame);
+  if(!inGame){
+    $('#rc').textContent=room;
+    $('#plist').innerHTML=Object.values(players).map(p=>'<span class="chip">'+esc(p.name)+'</span>').join('')||'<span class="mut">Nobody yet</span>';
+    $('#hostcard').classList.toggle('hide',!isHost());
+    $('#li').textContent=liesList().length+' lies entered · need '+Object.keys(players).length*2;
+    return;
+  }
+  const g=$('#game');
+  if(S.phase==='ended'){
+    const top=Object.keys(players).sort((a,b)=>(scores[b]||0)-(scores[a]||0))[0];
+    g.innerHTML='<div class="card big">🏆 '+esc(players[top]?.name)+' wins with '+(scores[top]||0)+' point(s)</div>'+board();return;
+  }
+  const pid=S.order[S.turn],lk=locked(),{t,l}=tally(),tot=t+l,amPres=pid===uid,mine=!!players[uid];
+  const my=votes[uid]&&votes[uid].turn===S.turn?votes[uid].vote:null;
+  $('#sub').textContent='Round '+(S.turn+1)+' of '+S.order.length+' · Room '+room;
+  let h='<div class="card"><div class="mut">Defending:</div><div class="big">'+esc(players[pid]?.name)+'</div><div class="timer" id="timer">'+(lk?'Voting locked':fmt(S.endsAt-srv()))+'</div></div>';
+  if(amPres&&turn&&turn.n===S.turn)h+='<div class="card"><h2>Your statement (only you can see it)</h2><div class="stmt">'+esc(turn.statement)+'</div><p class="mut">Read it out and convince the group!</p></div>';
+  else if(!lk&&mine&&!amPres)h+='<div class="card"><h2>Truth or lie?</h2><div class="row"><button style="background:var(--tr)" class="'+(my==='truth'?'sel':'')+'" data-v="truth">Truth</button><button style="background:var(--li)" class="'+(my==='lie'?'sel':'')+'" data-v="lie">Lie</button></div><p class="mut">Change your vote any time before the timer ends.</p></div>';
+  h+='<div class="card"><h2>Live votes ('+tot+')</h2><div class="bar t"><div style="width:'+(tot?t/tot*100:0)+'%">'+(t?'Truth '+t:'')+'</div></div><div class="bar l"><div style="width:'+(tot?l/tot*100:0)+'%">'+(l?'Lie '+l:'')+'</div></div></div>';
+  if(lk&&reveal&&reveal.n===S.turn)h+='<div class="card"><h2>Reveal</h2><div class="stmt">'+esc(reveal.statement)+'</div><p class="big" style="color:var(--'+(reveal.isTruth?'tr':'li')+')">It was a '+(reveal.isTruth?'TRUTH':'LIE')+'. '+(reveal.wrong?reveal.wrong+' fooled → '+reveal.wrong+' point'+(reveal.wrong>1?'s':'')+' for '+esc(players[pid]?.name)+'!':'Nobody fooled.')+'</p></div>';
+  h+=board();
+  if(isHost())h+='<div class="card"><h2>Host controls</h2>'+(lk?'<button id="nx" '+(S.scored?'':'disabled')+'>'+(S.turn+1>=S.order.length?'Finish game':'Next presenter')+'</button>':'<button class="alt" id="lk">Lock votes now</button>')+'</div>';
+  g.innerHTML=h;
+  g.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>cast(b.dataset.v));
+  const nx=$('#nx'),lkb=$('#lk');
+  if(nx)nx.onclick=()=>S.turn+1>=S.order.length?update(R('state'),{phase:'ended'}):startTurn(S.order,S.turn+1);
+  if(lkb)lkb.onclick=()=>update(R('state'),{locked:true});
+}
+</script></main></body></html>
