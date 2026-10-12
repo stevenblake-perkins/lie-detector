@@ -2,25 +2,35 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Will I Lie To You?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Carlito:wght@400;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#faf7f2;--fg:#1d1b19;--card:#fff;--mut:#6b655e;--acc:#c2410c;--tr:#15803d;--li:#b91c1c;--bd:#e5ded3}
-@media (prefers-color-scheme:dark){:root{--bg:#17150f;--fg:#f3eee6;--card:#221f18;--mut:#a39b8e;--acc:#fb923c;--tr:#4ade80;--li:#f87171;--bd:#38332a}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
-main{max-width:720px;margin:0 auto;padding:20px 16px 48px}h1{margin:0 0 4px}h2{font-size:1.1rem;margin:0 0 10px}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:14px}
-input,textarea{width:100%;font:inherit;color:inherit;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px;margin:4px 0 10px}
-button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:10px 16px;cursor:pointer;background:var(--acc);color:#fff}
-button.alt{background:transparent;color:var(--fg);border:1px solid var(--bd)}button:disabled{opacity:.4}
-.row{display:flex;gap:10px;flex-wrap:wrap}.row>button{flex:1}.mut{color:var(--mut)}.big{font-size:1.4rem;font-weight:700}
-.code{font-size:2.6rem;font-weight:800;letter-spacing:.2em}.timer{font-size:2.4rem;font-weight:700}
-.stmt{font-size:1.3rem;font-weight:600;padding:14px;border-left:4px solid var(--acc);background:var(--bg);border-radius:8px}
-.bar{height:34px;border-radius:8px;background:var(--bg);border:1px solid var(--bd);overflow:hidden;margin:6px 0 12px}
+/* Perkins brand: Cyan #00AEEF (primary), Teal #009CA8, Fuchsia #AA0061, Peach #E99385, Clementine #F8991D.
+   Navy/Grey are corporate-comms only, so they are not used. Headings: Bree (Bree Serif stand-in). Body: Calibri (Carlito fallback). */
+:root{--cyan:#00AEEF;--cyan10:#E5F5FD;--cyan20:#CCECFB;--bg:#fff;--fg:#1d2327;--card:#E5F5FD;--mut:#56636c;--acc:#00AEEF;--tr:#009CA8;--li:#AA0061;--clem:#F8991D;--peach10:#FAF4F3;--bd:#CCECFB;--head:"Bree","Bree Serif",Georgia,serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:18px/1.5 Calibri,Carlito,"Segoe UI",system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+.logo{display:block;height:48px;margin:0 0 16px}
+h1,h2,.big,.code,.timer{font-family:var(--head);font-weight:400}
+h1{margin:0 0 4px;font-size:2rem;color:var(--cyan)}h2{font-size:1.25rem;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:18px 18px 18px 4px;padding:18px;margin-bottom:14px}
+input,textarea{width:100%;font:inherit;color:inherit;background:#fff;border:2px solid var(--cyan20);border-radius:10px;padding:10px;margin:4px 0 10px}
+input:focus,textarea:focus{outline:none;border-color:var(--cyan)}
+button{font:inherit;font-weight:700;border:0;border-radius:12px 12px 12px 3px;padding:12px 18px;cursor:pointer;background:var(--cyan);color:#10252f}
+button.alt{background:#fff;color:var(--fg);border:2px solid var(--cyan)}button:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>button{flex:1}.mut{color:var(--mut)}.big{font-size:1.5rem}
+.code{font-size:2.8rem;letter-spacing:.2em;color:var(--cyan)}.timer{font-size:2.6rem;color:var(--clem)}
+[data-v]{color:#fff;font-size:1.3rem;padding:16px}
+.stmt{font-size:1.3rem;font-weight:700;padding:14px;border-left:5px solid var(--clem);background:var(--peach10);border-radius:4px 12px 12px 4px}
+.bar{height:36px;border-radius:10px;background:#fff;border:1px solid var(--bd);overflow:hidden;margin:6px 0 12px}
 .bar>div{height:100%;padding-left:10px;display:flex;align-items:center;color:#fff;font-weight:700;transition:width .4s;white-space:nowrap}
-.t>div{background:var(--tr)}.l>div{background:var(--li)}.sel{outline:3px solid var(--fg)}
-.chip{display:inline-block;background:var(--bg);border:1px solid var(--bd);border-radius:99px;padding:3px 12px;margin:0 6px 6px 0}
-table{width:100%;border-collapse:collapse}td{padding:6px 0;border-bottom:1px solid var(--bd)}td:last-child{text-align:right;font-weight:700}.hide{display:none}
+.t>div{background:var(--tr)}.l>div{background:var(--li)}.sel{outline:4px solid var(--clem);outline-offset:2px}
+.chip{display:inline-block;background:#fff;border:2px solid var(--cyan);border-radius:99px;padding:2px 14px;margin:0 6px 6px 0;font-weight:700}
+table{width:100%;border-collapse:collapse}td{padding:7px 0;border-bottom:1px solid var(--cyan20)}td:last-child{text-align:right;font-weight:700;color:var(--li)}.hide{display:none}
+.foot{margin-top:28px;padding-top:12px;border-top:2px solid var(--cyan20);color:var(--mut);font-size:.9rem}
 </style></head><body><main>
-<h1>🎭 Will I Lie To You?</h1><p class="mut" id="sub">Connecting…</p>
+<img class="logo" src="logo.png" alt="Harry Perkins Institute of Medical Research" onerror="this.remove()">
+<h1>Will I lie to you?</h1><p class="mut" id="sub">Connecting…</p>
 
 <div id="home" class="card hide">
   <label>Your name<input id="name" maxlength="30"></label>
@@ -33,10 +43,12 @@ table{width:100%;border-collapse:collapse}td{padding:6px 0;border-bottom:1px sol
 <div id="lobby" class="hide">
   <div class="card"><div class="mut">Room code</div><div class="code" id="rc"></div><div id="plist"></div></div>
   <div class="card hide" id="hostcard"><h2>Host controls</h2>
-    <p class="mut">Your pre-written lies, one per line (at least 2 per player). Each player is secretly dealt 2 unique ones.</p>
+    <p class="mut">Upload your lies as a .txt file (one lie per line) or a .csv file (lies in the first column), or type them below. You need at least 2 per player; each player is secretly dealt 2 unique ones.</p>
+    <input type="file" id="file" accept=".txt,.csv,text/plain,text/csv">
     <textarea id="lies" style="min-height:140px"></textarea><p class="mut" id="li"></p><button id="start">Start game</button></div>
 </div>
 <div id="game" class="hide"></div>
+<p class="foot">A game from the Harry Perkins Institute of Medical Research.</p>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -44,7 +56,6 @@ import {getAuth,signInAnonymously} from "https://www.gstatic.com/firebasejs/10.1
 import {getDatabase,ref,get,set,update,onValue} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 // ===== PASTE YOUR FIREBASE CONFIG HERE (Step 3 of the guide) =====
-
 const firebaseConfig = {
   apiKey: "AIzaSyDmAshaS0g7DecMZbUMFBPXM86XkdarlLs",
   authDomain: "will-i-lie.firebaseapp.com",
@@ -77,7 +88,7 @@ function tally(){
 try{
   const cred=await signInAnonymously(getAuth(app));uid=cred.user.uid;
   onValue(ref(db,'.info/serverTimeOffset'),s=>off=s.val()||0);
-  $('#sub').textContent='Write a truth, get dealt two lies, and defend one of the three.';
+  $('#sub').textContent='Share one truth, get dealt two fibs, then sell one of the three to the room.';
   $('#home').classList.remove('hide');
   $('#name').value=localStorage.wil_name||'';
   const saved=localStorage.wil_room;if(saved){room=saved;enter()}
@@ -111,6 +122,15 @@ function enter(){
   $('#lies').value=localStorage.wil_lies||'';
   setInterval(tick,500);
 }
+$('#file').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  const csv=/\.csv$/i.test(f.name);
+  let lines=(await f.text()).replace(/^\uFEFF/,'').split(/\r?\n/);
+  if(csv)lines=lines.map(l=>{l=l.trim();if(l[0]==='"'){const m=l.match(/^"((?:[^"]|"")*)"/);return m?m[1].replace(/""/g,'"'):l}return l.split(',')[0]});
+  lines=lines.map(x=>x.trim()).filter(Boolean);
+  if(csv&&/^lies?$/i.test(lines[0]))lines.shift();
+  $('#lies').value=lines.join('\n');localStorage.wil_lies=$('#lies').value;draw();e.target.value='';
+};
 $('#lies').oninput=()=>{localStorage.wil_lies=$('#lies').value;draw()};
 const liesList=()=>[...new Set($('#lies').value.split('\n').map(s=>s.trim()).filter(Boolean))];
 
@@ -178,7 +198,7 @@ function draw(){
   if(amPres&&turn&&turn.n===S.turn)h+='<div class="card"><h2>Your statement (only you can see it)</h2><div class="stmt">'+esc(turn.statement)+'</div><p class="mut">Read it out and convince the group!</p></div>';
   else if(!lk&&mine&&!amPres)h+='<div class="card"><h2>Truth or lie?</h2><div class="row"><button style="background:var(--tr)" class="'+(my==='truth'?'sel':'')+'" data-v="truth">Truth</button><button style="background:var(--li)" class="'+(my==='lie'?'sel':'')+'" data-v="lie">Lie</button></div><p class="mut">Change your vote any time before the timer ends.</p></div>';
   h+='<div class="card"><h2>Live votes ('+tot+')</h2><div class="bar t"><div style="width:'+(tot?t/tot*100:0)+'%">'+(t?'Truth '+t:'')+'</div></div><div class="bar l"><div style="width:'+(tot?l/tot*100:0)+'%">'+(l?'Lie '+l:'')+'</div></div></div>';
-  if(lk&&reveal&&reveal.n===S.turn)h+='<div class="card"><h2>Reveal</h2><div class="stmt">'+esc(reveal.statement)+'</div><p class="big" style="color:var(--'+(reveal.isTruth?'tr':'li')+')">It was a '+(reveal.isTruth?'TRUTH':'LIE')+'. '+(reveal.wrong?reveal.wrong+' fooled → '+reveal.wrong+' point'+(reveal.wrong>1?'s':'')+' for '+esc(players[pid]?.name)+'!':'Nobody fooled.')+'</p></div>';
+  if(lk&&reveal&&reveal.n===S.turn)h+='<div class="card"><h2>Reveal</h2><div class="stmt">'+esc(reveal.statement)+'</div><p class="big" style="color:var(--'+(reveal.isTruth?'tr':'li')+')">It was a '+(reveal.isTruth?'TRUTH':'LIE')+'. '+(reveal.wrong?reveal.wrong+' fooled → '+reveal.wrong+' point'+(reveal.wrong>1?'s':'')+' for '+esc(players[pid]?.name)+'!':'Nobody fell for it!')+'</p></div>';
   h+=board();
   if(isHost())h+='<div class="card"><h2>Host controls</h2>'+(lk?'<button id="nx" '+(S.scored?'':'disabled')+'>'+(S.turn+1>=S.order.length?'Finish game':'Next presenter')+'</button>':'<button class="alt" id="lk">Lock votes now</button>')+'</div>';
   g.innerHTML=h;
