@@ -90,6 +90,7 @@ ol.board{list-style:none;margin:0;padding:0}.board li{display:flex;align-items:c
     <p class="mut" id="odds"></p>
     <label for="file">Upload a lies file</label><input type="file" id="file" accept=".txt,.csv,text/plain,text/csv">
     <label for="lies">Lies <span class="hint">(one per line)</span></label><textarea id="lies" style="min-height:140px"></textarea>
+    <button class="alt" id="resetlies" type="button">Restore the default lies</button>
     <p class="mut" id="li"></p><button class="wide" id="start">Start the game</button>
   </div>
 </section>
@@ -119,6 +120,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const ROUND_MS=60*1000;
+const DEFAULT_LIES=["I have a small fear of horses after I was bitten by one as a child.", "I have a small clown-like doll named Albert who watches over me as I sleep.", "I once forced my way into the back of a police car to get a free ride to the train station.", "I was unable to drive a boat for 6 months because of a fear I developed after nearly killing a baby whale.", "I was once attacked by a seal after kicking it in the head.", "I have a fear of clownfish", "I once had a party shut down by police because of a noise complaint from singing High School Musical.", "I once nearly set a restaurant on fire after trying to launch a rocket.", "I once punched a giraffe in the face to protect myself", "I once spent 2 weeks watering someone’s house plants while house sitting only to find out they were fake plants.", "I have been kicked out of a chemist warehouse by their security guard", "I've accidentally attended a funeral for the wrong family"];
 const AV=[['#00AEEF','#10252f'],['#009CA8','#fff'],['#AA0061','#fff'],['#E99385','#10252f'],['#F8991D','#10252f']];
 const app=initializeApp(firebaseConfig),db=getDatabase(app);
 let uid,room,host,S,players={},scores={},votes={},turn,reveal,off=0,tu,lastTurn=-1,lastLocked,lastBurst=-1,busy=false,mode='join';
@@ -171,10 +173,11 @@ async function enter(){
   const sub=(p,f)=>onValue(R(p),s=>{f(s.val());draw()},()=>{});
   sub('host',v=>host=v);sub('players',v=>players=v||{});sub('scores',v=>scores=v||{});sub('votes',v=>votes=v||{});sub('reveal',v=>reveal=v);
   sub('state',v=>{S=v;if(S&&S.turn!==lastTurn){lastTurn=S.turn;tu&&tu();turn=null;tu=onValue(R('turn'),s=>{turn=s.val();draw()},()=>{turn=null})}});
-  $('#lies').value=localStorage.wil_lies||'';$('#lpp').value=localStorage.wil_lpp||'2';setInterval(tick,500);
+  $('#lies').value=localStorage.wil_lies??DEFAULT_LIES.join('\n');$('#lpp').value=localStorage.wil_lpp||'2';setInterval(tick,500);
 }
 const LPP=()=>+$('#lpp').value||2;
 const liesList=()=>[...new Set($('#lies').value.split('\n').map(s=>s.trim()).filter(Boolean))];
+$('#resetlies').onclick=()=>{$('#lies').value=DEFAULT_LIES.join('\n');localStorage.wil_lies=$('#lies').value;draw()};
 $('#lpp').onchange=()=>{localStorage.wil_lpp=$('#lpp').value;draw()};
 $('#lies').oninput=()=>{localStorage.wil_lies=$('#lies').value;draw()};
 $('#file').onchange=async e=>{
