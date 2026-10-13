@@ -81,6 +81,9 @@ ol.board{list-style:none;margin:0;padding:0}.board li{display:flex;align-items:c
 <section id="lobby" class="hide">
   <div class="card"><p class="mut" style="margin:0">Tell your crew the room code:</p><p class="code" id="rc"></p></div>
   <div class="card w"><h2>In the room</h2><div id="plist"></div><p class="mut hide" id="waiting">Hang tight. The host will start the game shortly.</p></div>
+  <details class="card w" id="rules"><summary><b>How scoring works</b></summary>
+    <p><b>Presenter:</b> 1 point for every person who guesses wrong.</p>
+    <p><b>Guessers:</b> guess right and you score 1 point for each other person who also guessed right. Guess wrong and you score nothing.</p></details>
   <div class="card hide" id="hostcard"><h2>Host controls</h2>
     <p class="mut">Add your pre-written lies: upload a .txt file (one per line) or a .csv file (first column), or type them. Each player is secretly dealt their own unique lies.</p>
     <label for="lpp">Lies per player</label><select id="lpp"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select>
@@ -199,9 +202,13 @@ async function startTurn(order,i){
 async function finish(){
   if(busy)return;busy=true;
   try{
-    const {t,l}=tally(),pid=S.order[S.turn],tn=turn&&turn.n===S.turn?turn:(await get(R('turn'))).val(),wrong=tn.isTruth?l:t;
-    await set(R('scores/'+pid),(scores[pid]||0)+wrong);
-    await set(R('reveal'),{n:S.turn,statement:tn.statement,isTruth:tn.isTruth,wrong});
+    const pid=S.order[S.turn],tn=turn&&turn.n===S.turn?turn:(await get(R('turn'))).val(),want=tn.isTruth?'truth':'lie';
+    const vs=Object.entries(votes).filter(([id,v])=>v.turn===S.turn&&id!==pid&&players[id]);
+    const good=vs.filter(([,v])=>v.vote===want),right=good.length,wrong=vs.length-right;
+    const up={};up[pid]=(scores[pid]||0)+wrong;
+    for(const [id] of good)up[id]=(scores[id]||0)+right-1;
+    await update(R('scores'),up);
+    await set(R('reveal'),{n:S.turn,statement:tn.statement,isTruth:tn.isTruth,wrong,right});
     await update(R('state'),{locked:true,scored:true});
   }catch(e){console.error(e)}busy=false;
 }
@@ -243,8 +250,9 @@ function draw(){
   }
   const pid=S.order[S.turn],lk=locked(),{t,l}=tally(),tot=t+l,amPres=pid===uid,mine=!!players[uid],pn=esc(players[pid]?.name);
   const my=votes[uid]&&votes[uid].turn===S.turn?votes[uid].vote:null,rv=lk&&reveal&&reveal.n===S.turn;
+  const bonus=()=>{const r=reveal.right||0;let x='<p style="margin:8px 0 0">'+(r>1?r+' correct guessers each score '+(r-1)+' point'+(r>2?'s':'')+'.':r===1?'Only one correct guess, so no bonus point.':'Nobody guessed right.')+'</p>';if(!amPres&&mine)x+='<p style="margin:8px 0 0;font-weight:700">'+(my===(reveal.isTruth?'truth':'lie')?'You called it! +'+Math.max(0,r-1):my?'Fooled this time. +0':'You didn\'t vote this round.')+'</p>';return x};
   let h='<div class="stage play'+(!lk&&S.endsAt-srv()<=10000?' urgent':'')+'"><div class="srow"><div class="who">'+av(pid)+'<div><div class="lab">Round '+(S.turn+1)+' of '+S.order.length+' · now defending</div><div class="nm">'+pn+(amPres?' (you!)':'')+'</div></div></div><div class="tm'+(lk?' lk':'')+'" id="timer" role="timer">'+(lk?'Locked':fmt(S.endsAt-srv()))+'</div></div><div class="pbar" aria-hidden="true"><div id="pfill" style="width:'+(lk?0:Math.max(0,Math.min(100,(S.endsAt-srv())/ROUND_MS*100)))+'%"></div></div></div>';
-  if(rv)h+='<div class="reveal '+(reveal.isTruth?'rt':'rl')+'"><p class="big">'+(reveal.isTruth?'✓ It was the truth!':'✕ It was a lie!')+'</p><div class="stmt">'+esc(reveal.statement)+'</div><p style="margin:0;font-weight:700">'+(reveal.wrong?reveal.wrong+(reveal.wrong>1?' people fell':' person fell')+' for it, so '+pn+' bags '+reveal.wrong+' point'+(reveal.wrong>1?'s':'')+'!':'Nobody fell for it. Sharp eyes!')+'</p></div>';
+  if(rv)h+='<div class="reveal '+(reveal.isTruth?'rt':'rl')+'"><p class="big">'+(reveal.isTruth?'✓ It was the truth!':'✕ It was a lie!')+'</p><div class="stmt">'+esc(reveal.statement)+'</div><p style="margin:0;font-weight:700">'+(reveal.wrong?reveal.wrong+(reveal.wrong>1?' people fell':' person fell')+' for it, so '+pn+' bags '+reveal.wrong+' point'+(reveal.wrong>1?'s':'')+'!':'Nobody fell for it. Sharp eyes!')+'</p>'+bonus()+'</div>';
   else if(amPres&&turn&&turn.n===S.turn)h+='<div class="card w"><h2>Your statement</h2><p class="mut" style="margin-top:-6px">Only you can see this. Read it out and keep a straight face.</p><div class="stmt">'+esc(turn.statement)+'</div></div>';
   else if(!lk&&mine&&!amPres)h+='<div class="card w"><h2>Truth or lie?</h2><div class="votes"><button id="vt" data-v="truth" aria-pressed="'+(my==='truth')+'">✓ Truth<span>'+(my==='truth'?'Your pick':'Tap to vote')+'</span></button><button id="vl" data-v="lie" aria-pressed="'+(my==='lie')+'">✕ Lie<span>'+(my==='lie'?'Your pick':'Tap to vote')+'</span></button></div><p class="mut" style="margin:10px 0 0">Change your mind any time before the timer runs out.</p></div>';
   h+='<div class="card"><h2>Live votes ('+tot+')</h2><div class="tl"><span>✓ Truth</span><span>'+t+'</span></div><div class="bar bt"><div style="width:'+(tot?t/tot*100:0)+'%"></div></div><div class="tl"><span>✕ Lie</span><span>'+l+'</span></div><div class="bar bl"><div style="width:'+(tot?l/tot*100:0)+'%"></div></div></div>'+board();
